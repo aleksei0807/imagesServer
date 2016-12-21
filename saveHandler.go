@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"io"
 	"os"
-	"log"
 	"strings"
 	"crypto/md5"
 	"encoding/hex"
@@ -27,7 +26,6 @@ func saveHandler(savepath string, fullpath string, multiple bool, rename bool) f
 		result := "["
 		for k, fileHeader := range files {
 			originalFilename := fileHeader.Filename
-			log.Printf("original file name: %v", originalFilename)
 			fileName := originalFilename
 			file, err := fileHeader.Open()
 			if err != nil {
@@ -96,7 +94,6 @@ func saveHandler(savepath string, fullpath string, multiple bool, rename bool) f
 		}
 
 		result += "]"
-		log.Printf("json: %s", result)
 		ctx.SetContentType("application/json")
 		ctx.WriteString(result)
 	}
