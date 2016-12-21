@@ -34,15 +34,15 @@ func main()  {
 		} else {
 			multiple = multipleI.(bool)
 		}
-		notrenameI := mapRoute["notrename"]
-		var notrename bool
-		if (notrenameI == nil) {
-			notrename = false
+		renameI := mapRoute["notrename"]
+		var rename bool
+		if (renameI == nil) {
+			rename = true
 		} else {
-			notrename = notrenameI.(bool)
+			rename = renameI.(bool)
 		}
 		fileserve := mapRoute["fileserve"].(string) + "/:route"
-		r.POST(servepath, saveHandler(savepath, fullpath, multiple, notrename))
+		r.POST(servepath, saveHandler(savepath, fullpath, multiple, rename))
 		r.GET(fileserve, serveHandler)
 	}
 
