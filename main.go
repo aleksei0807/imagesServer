@@ -34,7 +34,7 @@ func main()  {
 		} else {
 			multiple = multipleI.(bool)
 		}
-		renameI := mapRoute["notrename"]
+		renameI := mapRoute["rename"]
 		var rename bool
 		if (renameI == nil) {
 			rename = true
