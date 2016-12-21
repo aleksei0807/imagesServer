@@ -3,12 +3,13 @@ package main
 import (
 	"log"
 	"strings"
+
+	"github.com/buaazp/fasthttprouter"
 	"github.com/spf13/viper"
 	"github.com/valyala/fasthttp"
-	"github.com/buaazp/fasthttprouter"
 )
 
-func main()  {
+func main() {
 	viper.SetConfigType("yaml")
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
@@ -50,7 +51,7 @@ func main()  {
 
 	s := &fasthttp.Server{
 		MaxRequestBodySize: 1024 * 1024 * 1024, // Harry Potter and magic number
-		Handler: r.Handler,
+		Handler:            r.Handler,
 	}
 
 	s.ListenAndServe(addr)
