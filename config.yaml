@@ -1,0 +1,14 @@
+addres: :9090
+routes:
+    multipleFiles:
+        servepath: /multiple
+        savepath: ./static/multipleFiles
+        fullpath: http://localhost:9090/static/multipleFiles
+        fileserve: /static/multipleFiles
+        multiple: true
+    files:
+        servepath: /notmultiple
+        savepath: ./static/files
+        fullpath: http://localhost:9090/static/files
+        fileserve: /static/files
+        multiple: false
