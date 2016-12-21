@@ -1,4 +1,4 @@
-addres: :9090
+address: :9090
 routes:
     multipleFiles:
         servepath: /multiple

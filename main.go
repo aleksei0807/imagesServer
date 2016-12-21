@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"strings"
 	"github.com/spf13/viper"
 	"github.com/valyala/fasthttp"
 	"github.com/buaazp/fasthttprouter"
@@ -17,34 +18,40 @@ func main()  {
 		return
 	}
 
-	addr := viper.GetString("addres")
+	addr := viper.GetString("address")
 	r := fasthttprouter.New()
 	log.Printf("serve on %s", addr)
 
-	routes := viper.GetStringMap("routes")
-	for _, route := range routes {
-		mapRoute := route.(map[string]interface{})
-		servepath := mapRoute["servepath"].(string)
-		savepath := mapRoute["savepath"].(string)
-		fullpath := mapRoute["fullpath"].(string)
-		multipleI := mapRoute["multiple"]
-		var multiple bool
-		if (multipleI == nil) {
-			multiple = false
-		} else {
-			multiple = multipleI.(bool)
+	routes := viper.Sub("routes")
+	keys := viper.GetStringMap("routes")
+	for key := range keys {
+		if strings.Contains(key, ".") {
+			continue
 		}
-		renameI := mapRoute["rename"]
-		var rename bool
-		if (renameI == nil) {
-			rename = true
-		} else {
-			rename = renameI.(bool)
+		mapRoute := routes.Sub(key)
+		if mapRoute == nil {
+			log.Fatal("Config is invalid!")
 		}
-		fileserve := mapRoute["fileserve"].(string) + "/:route"
+		servepath := mapRoute.GetString("servepath")
+		savepath := mapRoute.GetString("savepath")
+		fullpath := mapRoute.GetString("fullpath")
+		multiple := false
+		if mapRoute.IsSet("multiple") {
+			multiple = mapRoute.GetBool("multiple")
+		}
+		rename := true
+		if mapRoute.IsSet("rename") {
+			rename = mapRoute.GetBool("rename")
+		}
+		fileserve := mapRoute.GetString("fileserve") + "/:route"
 		r.POST(servepath, saveHandler(savepath, fullpath, multiple, rename))
-		r.GET(fileserve, serveHandler)
+		r.GET(fileserve, fasthttp.FSHandler(savepath, 2))
 	}
 
-	fasthttp.ListenAndServe(addr, r.Handler)
+	s := &fasthttp.Server{
+		MaxRequestBodySize: 1024 * 1024 * 1024, // Harry Potter and magic number
+		Handler: r.Handler,
+	}
+
+	s.ListenAndServe(addr)
 }

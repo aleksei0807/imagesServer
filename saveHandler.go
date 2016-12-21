@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"io"
 	"os"
 	"log"
@@ -34,12 +35,17 @@ func saveHandler(savepath string, fullpath string, multiple bool, rename bool) f
 				return
 			}
 
+			var fileData []byte
+			fdb := new(bytes.Buffer)
+			io.Copy(fdb, file)
+			fileData = fdb.Bytes()
+
 			defer file.Close()
 
 			if (rename != false) {
 				hash := md5.New()
 
-				_, err := io.Copy(hash, file)
+				_, err := hash.Write(fileData)
 				if err != nil {
 					ctx.Error("Bad Request", 400)
 					return
@@ -69,20 +75,14 @@ func saveHandler(savepath string, fullpath string, multiple bool, rename bool) f
 				continue
 			}
 
-			var fileData []byte
-
-			file.Read(fileData)
-
 			newFile, err := os.Create(filePath)
 			if err != nil {
-				log.Fatal("failed to create file %s", fileName)
 				ctx.Error("Server Error", 500)
 				return
 			}
 
 			_, err = newFile.Write(fileData)
 			if err != nil {
-				log.Fatal("failed to write data in file %s", fileName)
 				ctx.Error("Server Error", 500)
 				return
 			}
