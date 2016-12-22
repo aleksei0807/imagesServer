@@ -2,11 +2,12 @@ package main
 
 import (
 	"bytes"
+	"crypto/md5"
+	"encoding/hex"
 	"io"
 	"os"
 	"strings"
-	"crypto/md5"
-	"encoding/hex"
+
 	"github.com/valyala/fasthttp"
 )
 
@@ -18,7 +19,7 @@ func saveHandler(savepath string, fullpath string, multiple bool, rename bool) f
 		ctx.Response.Header.Set("Access-Control-Allow-Credentials", "true")
 
 		multipart, err := ctx.MultipartForm()
-		if (err != nil) {
+		if err != nil {
 			ctx.Error("Bad Request", 400)
 			return
 		}
@@ -40,7 +41,7 @@ func saveHandler(savepath string, fullpath string, multiple bool, rename bool) f
 
 			defer file.Close()
 
-			if (rename != false) {
+			if rename != false {
 				hash := md5.New()
 
 				_, err := hash.Write(fileData)
@@ -66,7 +67,7 @@ func saveHandler(savepath string, fullpath string, multiple bool, rename bool) f
 
 			if _, err := os.Stat(filePath); err == nil {
 				result += "\"" + servePath + "\""
-				if (k < len(files) - 1) {
+				if k < len(files)-1 {
 					result += ","
 				}
 				file.Close()
@@ -86,7 +87,7 @@ func saveHandler(savepath string, fullpath string, multiple bool, rename bool) f
 			}
 
 			result += "\"" + servePath + "\""
-			if (k < len(files) - 1) {
+			if k < len(files)-1 {
 				result += ","
 			}
 
