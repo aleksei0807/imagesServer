@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"path"
 	"strings"
 
 	"github.com/buaazp/fasthttprouter"
@@ -16,10 +17,15 @@ func main() {
 	err := viper.ReadInConfig()
 	if err != nil {
 		log.Fatal(err)
-		return
 	}
 
 	addr := viper.GetString("address")
+
+	var frontendOrigins []string
+	if viper.IsSet("frontendOrigins") {
+		frontendOrigins = viper.GetStringSlice("frontendOrigins")
+	}
+
 	r := fasthttprouter.New()
 	log.Printf("serve on %s", addr)
 
@@ -33,8 +39,8 @@ func main() {
 		if mapRoute == nil {
 			log.Fatal("Config is invalid!")
 		}
-		servepath := mapRoute.GetString("servepath")
-		savepath := mapRoute.GetString("savepath")
+		servepath := path.Clean(mapRoute.GetString("servepath"))
+		savepath := path.Clean(mapRoute.GetString("savepath"))
 		fullpath := mapRoute.GetString("fullpath")
 		multiple := false
 		if mapRoute.IsSet("multiple") {
@@ -44,13 +50,13 @@ func main() {
 		if mapRoute.IsSet("rename") {
 			rename = mapRoute.GetBool("rename")
 		}
-		fileserve := mapRoute.GetString("fileserve") + "/:route"
-		r.POST(servepath, saveHandler(savepath, fullpath, multiple, rename))
+		fileserve := path.Clean(mapRoute.GetString("fileserve")) + "/:route"
+		r.POST(servepath, saveHandler(savepath, fullpath, multiple, rename, frontendOrigins))
 		r.GET(fileserve, fasthttp.FSHandler(savepath, 2))
 	}
 
 	s := &fasthttp.Server{
-		MaxRequestBodySize: 1024 * 1024 * 1024, // Harry Potter and magic number
+		MaxRequestBodySize: 2<<29, // Harry Potter and magic number
 		Handler:            r.Handler,
 	}
 

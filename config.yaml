@@ -1,4 +1,6 @@
 address: :9090
+frontendOrigins:
+    - http://localhost:8181
 routes:
     multipleFiles:
         servepath: /multiple
@@ -6,9 +8,11 @@ routes:
         fullpath: http://localhost:9090/static/multipleFiles
         fileserve: /static/multipleFiles
         multiple: true
+        rename: true
     files:
         servepath: /notmultiple
         savepath: ./static/files
         fullpath: http://localhost:9090/static/files
         fileserve: /static/files
         multiple: false
+        rename: true
